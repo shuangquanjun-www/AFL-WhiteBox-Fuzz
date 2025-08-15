@@ -10,7 +10,7 @@
 #include <ctype.h>   /* 可能用到字符处理函数 */
 #include <limits.h>  /* 提供INT_MAX等定义 */
 #include <errno.h>   /* 错误码errno用于部分函数 */
-
+#include <unistd.h>
 #define MAX_BUF_SIZE 256  /* 定义测试缓冲区的最大大小 */
 
 #endif /* COMMON_H */
