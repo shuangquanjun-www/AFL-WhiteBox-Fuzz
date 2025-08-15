@@ -167,7 +167,7 @@ afl-fuzz -i <初始测试用例目录> -o <输出结果目录> -- <待测程序>
 - **测试 free (内存释放)**:
 
   ```
-  afl-fuzz -i testcases/memory -o findings/free -- ./fuzz_free
+  afl-fuzz -i testcase/memory -o findings/free -- ./fuzz_free
   ```
 
   这个测试程序输入仅1字节，所以初始文件可以随意。AFL会尝试翻转位元，极快就会找到使程序崩溃的flag值。如 flag=1 或 2 会导致崩溃。
@@ -175,7 +175,7 @@ afl-fuzz -i <初始测试用例目录> -o <输出结果目录> -- <待测程序>
 - **测试 文件操作**:
 
   ```
-  afl-fuzz -i testcases/file -o findings/file -- ./fuzz_file
+  afl-fuzz -i testcase/file -o findings/file -- ./fuzz_file
   ```
 
   文件操作测试主要不是为了找崩溃，而是测试不同行为。AFL仍然会运行，但可能不会产生crashes（除非我们的代码有bug）。可以观察到输出目录下的queue文件，看看AFL生成了哪些特别的输入。
