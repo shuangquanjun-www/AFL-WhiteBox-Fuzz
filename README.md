@@ -31,7 +31,7 @@ cppCopyC_Fuzz_Project/                   // 项目根目录
 │   ├── fuzz_memmove.c           // 针对 memmove 函数的测试驱动
 │   ├── fuzz_free.c              // 针对 malloc/free 函数使用的测试驱动 (测试重释漏洞)
 │   └── fuzz_file.c              // 针对文件操作函数的测试驱动 (如 fopen/fgets)
-├── testcases/                   // 初始测试用例目录（AFL将从这里读取初始输入）
+├── testcase/                   // 初始测试用例目录（AFL将从这里读取初始输入）
 │   ├── strings/                 // 字符串函数相关的初始测试用例
 │   │   ├── empty.txt            // 空输入测试
 │   │   ├── small.txt            // 短字符串测试
@@ -54,7 +54,7 @@ cppCopyC_Fuzz_Project/                   // 项目根目录
 
 - **src/** 目录下每个 `fuzz_*.c` 文件都是一个独立的测试程序（模糊测试**驱动**），用于测试特定的标准库函数或操作。每个文件都包含一个 `main` 函数，使用 `stdin` 或文件输入（`@@`）从 AFL 获取数据，然后对目标函数进行调用测试。代码内含丰富的中文注释解释工作原理和边界情况处理。
 - **common.h** 提供一些公共的包含（如 `<stdio.h>`、`<string.h>` 等标准库）、宏定义或辅助函数声明，方便在多个测试文件中复用。
-- **testcases/** 目录提供AFL所需的初始输入种子，每个子目录对应一类测试（字符串、数学、内存、文件），里面放置一些代表性输入文件。AFL将基于这些初始种子进行变异（mutation）来生成新的测试输入。
+- **testcase/** 目录提供AFL所需的初始输入种子，每个子目录对应一类测试（字符串、数学、内存、文件），里面放置一些代表性输入文件。AFL将基于这些初始种子进行变异（mutation）来生成新的测试输入。
 - **Makefile** 定义了编译每个测试程序的规则，以及 `make all` 构建所有测试程序，`make clean` 清理可执行文件等。Makefile 默认使用 AFL 提供的编译器（如 `afl-gcc` 或 `afl-clang`）进行编译，以插桩代码获取覆盖率信息。
 - **README.md**（即本说明文档）详细说明了项目的使用方法，包括如何构建、如何运行 AFL 进行模糊测试，以及如何查看结果和发现的崩溃。
 
@@ -86,7 +86,7 @@ cppCopyC_Fuzz_Project/                   // 项目根目录
 
    - 可选：为了捕获更多内存错误，您也可以在编译时启用AddressSanitizer：`make CFLAGS="-g -O2 -fsanitize=address"`. AFL支持与ASan联用，但注意不要与栈映射（-fsanitize=address与afl-gcc默认的栈随机有冲突，AFL会自动处理）。使用ASan会减慢执行速度，但能检测出例如缓冲区溢出的位置。
 
-3. **准备初始测试用例**：本项目已经在 `testcases/` 目录下提供了一些初始输入文件。您可以根据需要增加更多案例。初始测试用例并不需要覆盖所有情况，只要提供不同类型的数据样本即可。AFL会基于这些样本自动生成其他测试输入。
+3. **准备初始测试用例**：本项目已经在 `testcase/` 目录下提供了一些初始输入文件。您可以根据需要增加更多案例。初始测试用例并不需要覆盖所有情况，只要提供不同类型的数据样本即可。AFL会基于这些样本自动生成其他测试输入。
 
 ## 使用 AFL 进行模糊测试
 
@@ -103,23 +103,23 @@ afl-fuzz -i <初始测试用例目录> -o <输出结果目录> -- <待测程序>
 - **测试 strlen**:
 
   ```
-  afl-fuzz -i testcases/strings -o findings/strlen -- ./fuzz_strlen
+  afl-fuzz -i testcase/strings -o findings/strlen -- ./fuzz_strlen
   ```
 
-  该命令让 AFL 从 `testcases/strings` 目录读取初始种子，模糊测试 `fuzz_strlen` 程序。结果将保存在 `findings/strlen` 目录下。
+  该命令让 AFL 从 `testcase/strings` 目录读取初始种子，模糊测试 `fuzz_strlen` 程序。结果将保存在 `findings/strlen` 目录下。
 
 - **测试 strcpy**:
 
   ```
-  afl-fuzz -i testcases/strings -o findings/strcpy -- ./fuzz_strcpy
+  afl-fuzz -i testcase/strings -o findings/strcpy -- ./fuzz_strcpy
   ```
 
-  由于 strcpy 测试同样是针对字符串输入，我们重用 `testcases/strings` 作为种子。您也可以为它创建专门的种子集。AFL会尝试各种长度的输入，很可能发现让程序崩溃的输入（因为超过dest大小会溢出）。
+  由于 strcpy 测试同样是针对字符串输入，我们重用 `testcase/strings` 作为种子。您也可以为它创建专门的种子集。AFL会尝试各种长度的输入，很可能发现让程序崩溃的输入（因为超过dest大小会溢出）。
 
 - **测试 strcmp**:
 
   ```
-  afl-fuzz -i testcases/strings -o findings/strcmp -- ./fuzz_strcmp
+  afl-fuzz -i testcase/strings -o findings/strcmp -- ./fuzz_strcmp
   ```
 
   strcmp 测试也使用字符串种子。AFL将探索使两半字符串相同或不同的各种情形。
@@ -127,7 +127,7 @@ afl-fuzz -i <初始测试用例目录> -o <输出结果目录> -- <待测程序>
 - **测试 atoi**:
 
   ```
-  afl-fuzz -i testcases/math -o findings/atoi -- ./fuzz_atoi
+  afl-fuzz -i testcase/math -o findings/atoi -- ./fuzz_atoi
   ```
 
   初始输入可以包含数字和字符，AFL会生成各种字符串来测试 atoi 转换。
@@ -135,15 +135,15 @@ afl-fuzz -i <初始测试用例目录> -o <输出结果目录> -- <待测程序>
 - **测试 abs**:
 
   ```
-  afl-fuzz -i testcases/math -o findings/abs -- ./fuzz_abs
+  afl-fuzz -i testcase/math -o findings/abs -- ./fuzz_abs
   ```
 
-  由于 abs 测试直接读取4字节整数，提供的种子文件其实可以是任意4字节的值。`testcases/math` 下准备的文件如 `maxint.txt` 等可能包含一些边界二进制值。
+  由于 abs 测试直接读取4字节整数，提供的种子文件其实可以是任意4字节的值。`testcase/math` 下准备的文件如 `maxint.txt` 等可能包含一些边界二进制值。
 
 - **测试除法**:
 
   ```
-  afl-fuzz -i testcases/math -o findings/div -- ./fuzz_div
+  afl-fuzz -i testcase/math -o findings/div -- ./fuzz_div
   ```
 
   AFL将尝试各种8字节输入以偶然产生除数为0的情况，从而触发异常。一般来说，不需要很久就会找到崩溃样本。
@@ -151,7 +151,7 @@ afl-fuzz -i <初始测试用例目录> -o <输出结果目录> -- <待测程序>
 - **测试 memcpy**:
 
   ```
-  afl-fuzz -i testcases/memory -o findings/memcpy -- ./fuzz_memcpy
+  afl-fuzz -i testcase/memory -o findings/memcpy -- ./fuzz_memcpy
   ```
 
   内存操作的输入是二进制格式，不妨提供一些随机的初始文件。AFL将寻找导致越界的参数组合。
@@ -159,7 +159,7 @@ afl-fuzz -i <初始测试用例目录> -o <输出结果目录> -- <待测程序>
 - **测试 memmove**:
 
   ```
-  afl-fuzz -i testcases/memory -o findings/memmove -- ./fuzz_memmove
+  afl-fuzz -i testcase/memory -o findings/memmove -- ./fuzz_memmove
   ```
 
   同上。
