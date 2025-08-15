@@ -1,5 +1,5 @@
 # 定义使用的编译器和标志
-CC ?= afl-gcc          # 默认使用afl-gcc进行编译，如已安装AFL，可将CC设为afl-clang-fast等
+CC = afl-gcc          # 默认使用afl-gcc进行编译，如已安装AFL，可将CC设为afl-clang-fast等
 CFLAGS = -g -O2        # 生成调试信息(-g)，优化级别O2。AFL建议不要使用-O3过高优化。
 # 若需要AddressSanitizer，可添加: CFLAGS += -fsanitize=address
 LDLIBS =                # 如需链接特殊库，在此添加
